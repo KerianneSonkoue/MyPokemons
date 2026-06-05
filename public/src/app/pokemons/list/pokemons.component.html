@@ -1,5 +1,7 @@
 <h1 class="center">Liste de Pokémons</h1>
 
+<search-pokemon></search-pokemon>
+
 <!-- Barre de filtres réactifs -->
 <div class="row" style="margin-bottom:0;">
   <div class="col s12 m8 offset-m2">
@@ -46,32 +48,36 @@
     @for (pokemon of filteredPokemons$ | async; track pokemon.id) {
       @let r = pokemon.rarete | pokemonRarete;
       <div class="col s6 m4 card-animated">
-        <pkmnBorderCard class="card horizontal" (click)="selectPokemon(pokemon)">
-          <div class="card-image">
-            <img [src]="pokemon.picture" alt="img">
-          </div>
-          <div class="card-stacked">
-            <div class="card-content">
-              <p>
-                {{ pokemon.name }}
-                @if (pokemon.isFavorite) { <span style="color:#ffd700;">★</span> }
-              </p>
-              <p><small>{{ pokemon.created | date: 'dd/MM/yy' }}</small></p>
-              @for (type of pokemon.types; track $index) {
-                <span class="{{ type | pokemonTypeColor }}">{{ type }}</span>
-              }
-              <br>
-              <span [class]="r.colorClass" style="font-size:1em;">{{ r.stars }}</span>
+        <div style="position:relative;">
+          <pkmnBorderCard class="card horizontal" (click)="selectPokemon(pokemon)">
+            <div class="card-image">
+              <img [src]="pokemon.picture" alt="img">
             </div>
-            <div class="card-action" style="padding:6px;">
-              <button class="btn-flat red-text btn-small waves-effect"
-                      (click)="deletePokemon(pokemon, $event)"
-                      title="Supprimer">
-                ✕
-              </button>
+            <div class="card-stacked">
+              <div class="card-content">
+                <p>
+                  {{ pokemon.name }}
+                  @if (pokemon.isFavorite) { <span style="color:#ffd700;">★</span> }
+                </p>
+                <p><small>{{ pokemon.created | date: 'dd/MM/yy' }}</small></p>
+                @for (type of pokemon.types; track $index) {
+                  <span class="{{ type | pokemonTypeColor }}">{{ type }}</span>
+                }
+                <br>
+                <span [class]="r.colorClass" style="font-size:1em;">{{ r.stars }}</span>
+              </div>
             </div>
-          </div>
-        </pkmnBorderCard>
+          </pkmnBorderCard>
+          <!-- Bouton suppression fixe en haut à droite -->
+          <button style="position:absolute;top:6px;right:6px;background:none;border:none;
+                         cursor:pointer;color:#e53935;font-size:1.1em;font-weight:bold;
+                         line-height:1;padding:2px 5px;border-radius:50%;
+                         background:rgba(255,255,255,0.15);"
+                  (click)="deletePokemon(pokemon, $event)"
+                  title="Supprimer">
+            ✕
+          </button>
+        </div>
       </div>
     }
   </div>

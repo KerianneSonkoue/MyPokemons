@@ -8,13 +8,14 @@ import { BorderCardDirective } from "../directives/border-card.directive";
 import { Router } from "@angular/router";
 import { PokemonsService } from "../pokemons.service";
 import { RouterLink } from "@angular/router";
+import { SearchPokemonComponent } from "../search-pokemons/search-pokemons.component";
 import { BehaviorSubject, combineLatest, Observable, map, Subject, switchMap } from "rxjs";
 
 @Component({
   standalone: true,
   selector: 'list-pokemons',
   templateUrl: './pokemons.component.html',
-  imports: [DatePipe, AsyncPipe, FormsModule, RouterLink, PokemonTypeColor, PokemonRaretePipe, BorderCardDirective]
+  imports: [DatePipe, AsyncPipe, FormsModule, RouterLink, SearchPokemonComponent, PokemonTypeColor, PokemonRaretePipe, BorderCardDirective]
 })
 export class PokemonsComponent implements OnInit {
 

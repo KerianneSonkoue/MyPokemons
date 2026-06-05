@@ -1,6 +1,17 @@
 <nav>
   <div class="nav-wrapper teal">
-    <a href="#" class="brand-logo center">Application de pokémons</a>
+    <a routerLink="/" class="brand-logo center">Application de pokémons</a>
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a routerLink="/auth/register">S'inscrire</a></li>
+      <li><a routerLink="/auth/login">Se connecter</a></li>
+      <li>
+        <button (click)="darkMode.toggle()"
+                style="background:none;border:none;cursor:pointer;font-size:1.4em;color:white;padding:0 12px;line-height:64px;"
+                [title]="darkMode.isDark() ? 'Mode clair' : 'Mode sombre'">
+          {{ darkMode.isDark() ? '☀️' : '🌙' }}
+        </button>
+      </li>
+    </ul>
   </div>
 </nav>
 

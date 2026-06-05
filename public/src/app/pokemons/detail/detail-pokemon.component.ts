@@ -24,10 +24,14 @@ export class DetailPokemonComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = +this.route.snapshot.params['id'];
-    this.pokemonsService.getPokemon(id).subscribe(p => this.pokemon = p);
     this.pokemonsService.getPokemons().subscribe(ps => {
       this.allIds = ps.map(p => p.id).sort((a, b) => a - b);
+    });
+
+    // Observable : se déclenche à chaque changement de paramètre dans l'URL
+    this.route.params.subscribe(params => {
+      const id = +params['id'];
+      this.pokemonsService.getPokemon(id).subscribe(p => this.pokemon = p);
     });
   }
 
