@@ -1,71 +1,112 @@
-import { Injectable } from "@angular/core";
-import { Pokemon } from "./donnees/pokemon";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { catchError, tap, Observable, of } from "rxjs";
+import { Injectable } from '@angular/core';
+import { from, Observable, of, map } from 'rxjs';
+import { Pokemon } from './donnees/pokemon';
+import { SupabaseService } from '../supabase.service';
 
 @Injectable({ providedIn: 'root' })
 export class PokemonsService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private supabaseService: SupabaseService) {}
 
-  private pokemonUrl = 'api/pokemons';
+  private get db() {
+    return this.supabaseService.client;
+  }
 
-  private log(log: string) { console.info(log); }
+  private mapToPokemon(row: any): Pokemon {
+    const p = new Pokemon();
+    p.id         = row.id;
+    p.name       = row.name;
+    p.hp         = row.hp;
+    p.cp         = row.cp;
+    p.picture    = row.picture;
+    p.types      = row.types ?? [];
+    p.created    = new Date(row.created);
+    p.rarete     = row.rarete ?? 1;
+    p.isFavorite = row.is_favorite ?? false;
+    return p;
+  }
 
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.log(error);
-      console.log(`${operation} failed: ${error.message}`);
-      return of(result as T);
+  private mapToRow(pokemon: Pokemon): any {
+    return {
+      name:        pokemon.name,
+      hp:          pokemon.hp,
+      cp:          pokemon.cp,
+      picture:     pokemon.picture,
+      types:       pokemon.types,
+      rarete:      pokemon.rarete,
+      is_favorite: pokemon.isFavorite
     };
   }
 
   getPokemons(): Observable<Pokemon[]> {
-    return this.http.get<Pokemon[]>(this.pokemonUrl).pipe(
-      tap(_ => this.log('fetched pokemons')),
-      catchError(this.handleError('getPokemons', []))
+    return from(
+      this.db.from('pokemons').select('*').order('id')
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) { console.error(error); return []; }
+        return (data ?? []).map(row => this.mapToPokemon(row));
+      })
     );
   }
 
   getPokemon(id: number): Observable<Pokemon> {
-    return this.http.get<Pokemon>(`${this.pokemonUrl}/${id}`).pipe(
-      tap(_ => this.log(`fetched pokemon id=${id}`)),
-      catchError(this.handleError<Pokemon>(`getPokemon id=${id}`))
-    );
-  }
-
-  getPokemonTypes(): string[] {
-    return ['Plante', 'Feu', 'Eau', 'Poison', 'Psy', 'Electrik', 'Normal', 'Fée', 'Vol', 'Insecte'];
-  }
-
-  updatePokemon(pokemon: Pokemon): Observable<Pokemon> {
-    const httpOptions = { headers: new HttpHeaders({ 'content-type': 'application/json' }) };
-    return this.http.put<Pokemon>(`${this.pokemonUrl}/${pokemon.id}`, pokemon, httpOptions).pipe(
-      tap(_ => this.log(`updated pokemon id=${pokemon.id}`)),
-      catchError(this.handleError<Pokemon>(`updatePokemon id=${pokemon.id}`))
+    return from(
+      this.db.from('pokemons').select('*').eq('id', id).single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) { console.error(error); return new Pokemon(); }
+        return this.mapToPokemon(data);
+      })
     );
   }
 
   addPokemon(pokemon: Pokemon): Observable<Pokemon> {
-    const httpOptions = { headers: new HttpHeaders({ 'content-type': 'application/json' }) };
-    return this.http.post<Pokemon>(this.pokemonUrl, pokemon, httpOptions).pipe(
-      tap((p: Pokemon) => this.log(`added pokemon id=${p.id}`)),
-      catchError(this.handleError<Pokemon>('addPokemon'))
+    const row = { ...this.mapToRow(pokemon), created: new Date().toISOString() };
+    return from(
+      this.db.from('pokemons').insert(row).select().single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) { console.error(error); return new Pokemon(); }
+        return this.mapToPokemon(data);
+      })
     );
   }
 
-  deletePokemon(id: number): Observable<Pokemon> {
-    return this.http.delete<Pokemon>(`${this.pokemonUrl}/${id}`).pipe(
-      tap(_ => this.log(`deleted pokemon id=${id}`)),
-      catchError(this.handleError<Pokemon>('deletePokemon'))
+  updatePokemon(pokemon: Pokemon): Observable<Pokemon> {
+    return from(
+      this.db.from('pokemons').update(this.mapToRow(pokemon)).eq('id', pokemon.id).select().single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) { console.error(error); return new Pokemon(); }
+        return this.mapToPokemon(data);
+      })
+    );
+  }
+
+  deletePokemon(id: number): Observable<any> {
+    return from(
+      this.db.from('pokemons').delete().eq('id', id)
+    ).pipe(
+      map(({ error }) => {
+        if (error) console.error(error);
+        return {};
+      })
     );
   }
 
   searchPokemons(term: string): Observable<Pokemon[]> {
     if (!term.trim()) return of([]);
-    return this.http.get<Pokemon[]>(`${this.pokemonUrl}/?name=${term}`).pipe(
-      tap(_ => this.log(`searched pokemons term=${term}`)),
-      catchError(this.handleError<Pokemon[]>('searchPokemons', []))
+    return from(
+      this.db.from('pokemons').select('*').ilike('name', `%${term}%`)
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) { console.error(error); return []; }
+        return (data ?? []).map(row => this.mapToPokemon(row));
+      })
     );
+  }
+
+  getPokemonTypes(): string[] {
+    return ['Plante', 'Feu', 'Eau', 'Poison', 'Psy', 'Electrik', 'Normal', 'Fée', 'Vol', 'Insecte'];
   }
 }

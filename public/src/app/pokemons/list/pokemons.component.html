@@ -45,7 +45,7 @@
   <div class="row">
     @for (pokemon of filteredPokemons$ | async; track pokemon.id) {
       @let r = pokemon.rarete | pokemonRarete;
-      <div class="col s6 m4">
+      <div class="col s6 m4 card-animated">
         <pkmnBorderCard class="card horizontal" (click)="selectPokemon(pokemon)">
           <div class="card-image">
             <img [src]="pokemon.picture" alt="img">

@@ -1,0 +1,58 @@
+<div class="row" style="margin-top:40px;">
+  <div class="col s10 m6 offset-s1 offset-m3">
+    <div class="card-panel">
+      <h4 class="center">Inscription</h4>
+
+      @if (errorMessage) {
+        <div class="card-panel red lighten-4">{{ errorMessage }}</div>
+      }
+      @if (successMessage) {
+        <div class="card-panel green lighten-4">{{ successMessage }}</div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+
+        <div class="input-field">
+          <input type="text" id="username" name="username" required
+                 pattern="^[a-zA-Z0-9]{3,20}$"
+                 [(ngModel)]="username" #usernameRef="ngModel">
+          <label for="username">Nom d'utilisateur</label>
+          <div [hidden]="usernameRef.valid || usernameRef.pristine" class="red-text">
+            3 à 20 caractères alphanumériques
+          </div>
+        </div>
+
+        <div class="input-field">
+          <input type="email" id="email" name="email" required
+                 [(ngModel)]="email" #emailRef="ngModel">
+          <label for="email">Email</label>
+          <div [hidden]="emailRef.valid || emailRef.pristine" class="red-text">
+            Email valide requis
+          </div>
+        </div>
+
+        <div class="input-field">
+          <input type="password" id="password" name="password" required minlength="6"
+                 [(ngModel)]="password" #passwordRef="ngModel">
+          <label for="password">Mot de passe</label>
+          <div [hidden]="passwordRef.valid || passwordRef.pristine" class="red-text">
+            6 caractères minimum
+          </div>
+        </div>
+
+        <div class="center" style="margin-top:20px;">
+          <button type="submit"
+                  [disabled]="!registerForm.form.valid || loading"
+                  class="btn waves-effect waves-light green">
+            {{ loading ? 'Inscription...' : "S'inscrire" }}
+          </button>
+        </div>
+      </form>
+
+      <p class="center" style="margin-top:16px;">
+        Déjà un compte ?
+        <a routerLink="/auth/login">Se connecter</a>
+      </p>
+    </div>
+  </div>
+</div>
