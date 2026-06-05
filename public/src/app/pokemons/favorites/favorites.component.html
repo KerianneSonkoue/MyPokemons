@@ -1,0 +1,43 @@
+<h1 class="center">Pokémons Favoris ★</h1>
+
+<div class="row">
+  <div class="col s12 m8 offset-m2" style="text-align:center;margin-bottom:12px;">
+    <a routerLink="/" class="btn waves-effect waves-light grey">← Retour à la liste</a>
+  </div>
+</div>
+
+@if (favorites$ | async; as favorites) {
+  @if (favorites.length === 0) {
+    <p class="center grey-text">Aucun Pokémon en favori pour l'instant.</p>
+  } @else {
+    <div class="container">
+      <div class="row">
+        @for (pokemon of favorites; track pokemon.id) {
+          @let r = pokemon.rarete | pokemonRarete;
+          <div class="col s6 m4">
+            <div class="card horizontal hoverable" style="cursor:pointer;" (click)="goToDetail(pokemon)">
+              <div class="card-image">
+                <img [src]="pokemon.picture" alt="img">
+              </div>
+              <div class="card-stacked">
+                <div class="card-content">
+                  <p><strong>{{ pokemon.name }}</strong></p>
+                  <p><small>{{ pokemon.created | date: 'dd/MM/yy' }}</small></p>
+                  @for (type of pokemon.types; track $index) {
+                    <span class="{{ type | pokemonTypeColor }}">{{ type }}</span>
+                  }
+                  <br>
+                  <span [class]="r.colorClass">{{ r.stars }}</span>
+                </div>
+                <div class="card-action">
+                  <button class="btn-favorite actif" (click)="toggleFavorite(pokemon, $event)"
+                          title="Retirer des favoris">★</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}

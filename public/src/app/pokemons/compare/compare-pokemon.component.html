@@ -1,0 +1,101 @@
+<h1 class="center">Comparateur de Pokémon</h1>
+
+<div class="row">
+  <div class="col s12 m8 offset-m2" style="text-align:center;margin-bottom:12px;">
+    <a routerLink="/" class="btn waves-effect waves-light grey">← Retour à la liste</a>
+  </div>
+</div>
+
+<!-- Sélection des 2 Pokémons -->
+<div class="row">
+  <div class="col s5 offset-s1">
+    <select class="browser-default" [(ngModel)]="selectedId1">
+      <option [ngValue]="null" disabled>Pokémon 1</option>
+      @for (p of allPokemons; track p.id) {
+        <option [ngValue]="p.id">{{ p.name }}</option>
+      }
+    </select>
+  </div>
+  <div class="col s1 center" style="line-height:40px;font-size:1.5em;">VS</div>
+  <div class="col s5">
+    <select class="browser-default" [(ngModel)]="selectedId2">
+      <option [ngValue]="null" disabled>Pokémon 2</option>
+      @for (p of allPokemons; track p.id) {
+        <option [ngValue]="p.id">{{ p.name }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+<!-- Tableau comparatif -->
+@if (pokemon1 && pokemon2) {
+  @let r1 = pokemon1.rarete | pokemonRarete;
+  @let r2 = pokemon2.rarete | pokemonRarete;
+
+  <div class="row">
+    <div class="col s10 offset-s1">
+      <table class="bordered striped">
+        <thead>
+          <tr>
+            <th class="center">
+              <img [src]="pokemon1.picture" style="height:80px;"><br>
+              {{ pokemon1.name }}
+            </th>
+            <th class="center grey lighten-3">Stat</th>
+            <th class="center">
+              <img [src]="pokemon2.picture" style="height:80px;"><br>
+              {{ pokemon2.name }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Points de vie -->
+          <tr>
+            <td class="center" [class.compare-winner]="winner(pokemon1.hp, pokemon2.hp) === 'left'">
+              <strong>{{ pokemon1.hp }}</strong>
+            </td>
+            <td class="center grey-text">PV</td>
+            <td class="center" [class.compare-winner]="winner(pokemon1.hp, pokemon2.hp) === 'right'">
+              <strong>{{ pokemon2.hp }}</strong>
+            </td>
+          </tr>
+          <!-- Dégâts -->
+          <tr>
+            <td class="center" [class.compare-winner]="winner(pokemon1.cp, pokemon2.cp) === 'left'">
+              <strong>{{ pokemon1.cp }}</strong>
+            </td>
+            <td class="center grey-text">Dégâts</td>
+            <td class="center" [class.compare-winner]="winner(pokemon1.cp, pokemon2.cp) === 'right'">
+              <strong>{{ pokemon2.cp }}</strong>
+            </td>
+          </tr>
+          <!-- Rareté -->
+          <tr>
+            <td class="center" [class.compare-winner]="winner(pokemon1.rarete, pokemon2.rarete) === 'left'">
+              <span [class]="r1.colorClass">{{ r1.stars }}</span>
+            </td>
+            <td class="center grey-text">Rareté</td>
+            <td class="center" [class.compare-winner]="winner(pokemon1.rarete, pokemon2.rarete) === 'right'">
+              <span [class]="r2.colorClass">{{ r2.stars }}</span>
+            </td>
+          </tr>
+          <!-- Types -->
+          <tr>
+            <td class="center">
+              @for (type of pokemon1.types; track $index) {
+                <span class="{{ type | pokemonTypeColor }}">{{ type }}</span>
+              }
+            </td>
+            <td class="center grey-text">Types</td>
+            <td class="center">
+              @for (type of pokemon2.types; track $index) {
+                <span class="{{ type | pokemonTypeColor }}">{{ type }}</span>
+              }
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="center grey-text"><small>La case verte indique le meilleur score.</small></p>
+    </div>
+  </div>
+}

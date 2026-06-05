@@ -1,0 +1,95 @@
+<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:10px;padding:24px;width:95%;max-width:680px;max-height:92vh;overflow-y:auto;">
+
+    <h5 class="center-align" style="margin-top:0;">Éditeur d'image</h5>
+
+    @if (corsError) {
+      <div class="card-panel orange lighten-3" style="padding:10px;">
+        Le recadrage est indisponible pour les images externes (restriction CORS). Charge d'abord une nouvelle image depuis ton appareil.
+      </div>
+    }
+
+    <!-- Zone image avec overlay de recadrage -->
+    <div style="position:relative;text-align:center;background:#eee;border-radius:6px;padding:10px;user-select:none;"
+         (mousedown)="onMouseDown($event)"
+         (mousemove)="onMouseMove($event)"
+         (mouseup)="onMouseUp()"
+         (mouseleave)="onMouseUp()"
+         [style.cursor]="cropMode ? 'crosshair' : 'default'">
+
+      <img #previewImg
+           [src]="currentSrc"
+           crossorigin="anonymous"
+           [style.filter]="cssFilter"
+           style="max-width:100%;max-height:320px;display:inline-block;pointer-events:none;border-radius:4px;">
+
+      @if (cropMode && cropRect.w > 2) {
+        <div style="position:absolute;border:2px dashed white;box-shadow:0 0 0 9999px rgba(0,0,0,0.55);pointer-events:none;box-sizing:border-box;"
+             [style.left.px]="cropRect.x"
+             [style.top.px]="cropRect.y"
+             [style.width.px]="cropRect.w"
+             [style.height.px]="cropRect.h">
+        </div>
+      }
+    </div>
+
+    <!-- Curseurs d'ajustement -->
+    <div class="row" style="margin-top:18px;margin-bottom:0;">
+      <div class="col s6" style="padding-bottom:8px;">
+        <label style="font-size:13px;">Luminosité : {{ brightness }}%</label>
+        <input type="range" min="0" max="200" [(ngModel)]="brightness" style="margin:0;">
+      </div>
+      <div class="col s6" style="padding-bottom:8px;">
+        <label style="font-size:13px;">Contraste : {{ contrast }}%</label>
+        <input type="range" min="0" max="200" [(ngModel)]="contrast" style="margin:0;">
+      </div>
+      <div class="col s6" style="padding-bottom:8px;">
+        <label style="font-size:13px;">Saturation : {{ saturation }}%</label>
+        <input type="range" min="0" max="200" [(ngModel)]="saturation" style="margin:0;">
+      </div>
+      <div class="col s6" style="padding-bottom:8px;">
+        <label style="font-size:13px;">Flou : {{ blur }}px</label>
+        <input type="range" min="0" max="10" step="0.5" [(ngModel)]="blur" style="margin:0;">
+      </div>
+    </div>
+
+    <!-- Filtres prédéfinis -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+      @for (f of presetFilters; track f.value) {
+        <button type="button"
+                (click)="activeFilter = f.value"
+                class="btn btn-small waves-effect waves-light"
+                [style.background-color]="activeFilter === f.value ? '#1565c0' : '#90a4ae'">
+          {{ f.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Recadrage -->
+    <div class="center" style="margin-bottom:16px;">
+      @if (!cropMode) {
+        <button type="button" class="btn waves-effect waves-light blue darken-1" (click)="startCrop()">
+          ✂ Recadrer
+        </button>
+      } @else {
+        <button type="button" class="btn waves-effect waves-light green" (click)="applyCrop()">
+          Valider le recadrage
+        </button>
+        <button type="button" class="btn waves-effect waves-light red" (click)="cancelCrop()" style="margin-left:8px;">
+          Annuler le recadrage
+        </button>
+      }
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="center">
+      <button type="button" class="btn waves-effect waves-light green" (click)="applyAndClose()">
+        Appliquer les modifications
+      </button>
+      <button type="button" class="btn waves-effect waves-light grey" (click)="cancel()" style="margin-left:8px;">
+        Annuler
+      </button>
+    </div>
+
+  </div>
+</div>

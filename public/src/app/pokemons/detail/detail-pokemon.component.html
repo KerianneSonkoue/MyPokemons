@@ -1,0 +1,73 @@
+@if (pokemon) {
+  @let r = pokemon.rarete | pokemonRarete;
+  <div class="row">
+    <div class="col s12 m8 offset-m2">
+      <h2 class="header center">{{ pokemon.name }}</h2>
+      <div class="card horizontal hoverable">
+        <div class="card-image">
+          <img [src]="pokemon.picture">
+        </div>
+        <div class="card-stacked">
+          <div class="card-content">
+            <table class="bordered striped">
+              <tbody>
+                <tr>
+                  <td>Nom</td>
+                  <td><strong>{{ pokemon.name }}</strong></td>
+                </tr>
+                <tr>
+                  <td>Point de vie</td>
+                  <td><strong>{{ pokemon.hp }}</strong></td>
+                </tr>
+                <tr>
+                  <td>Dégâts</td>
+                  <td><strong>{{ pokemon.cp }}</strong></td>
+                </tr>
+                <tr>
+                  <td>Type</td>
+                  <td>
+                    @for (type of pokemon.types; track $index) {
+                      <span class="{{ type | pokemonTypeColor }}">{{ type }}</span>
+                    }
+                  </td>
+                </tr>
+                <tr>
+                  <td>Rareté</td>
+                  <td>
+                    <span [class]="r.colorClass">{{ r.stars }}</span>
+                    <small style="margin-left:6px;">({{ r.label }})</small>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Date de création</td>
+                  <td><strong>{{ pokemon.created | date: 'dd/MM/yy' }}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-action" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a (click)="goBack()" class="waves-effect btn waves-light">Retour</a>
+            <a (click)="goEdit(pokemon)" class="waves-effect btn waves-light">Éditer</a>
+            <button class="btn-favorite" [class.actif]="pokemon.isFavorite" [class.inactif]="!pokemon.isFavorite"
+                    (click)="toggleFavorite()" title="Favori">
+              {{ pokemon.isFavorite ? '★' : '☆' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation précédent / suivant -->
+      <div class="center section">
+        <button class="btn waves-effect waves-light" [disabled]="!prevId" (click)="goPrev()">
+          ← Précédent
+        </button>
+        <button class="btn waves-effect waves-light" [disabled]="!nextId" (click)="goNext()" style="margin-left:8px;">
+          Suivant →
+        </button>
+      </div>
+
+    </div>
+  </div>
+} @else {
+  <p class="center">Pokémon non trouvé</p>
+}
